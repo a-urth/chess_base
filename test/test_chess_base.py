@@ -1,4 +1,4 @@
-from chess_base import build_board, PIECES
+from chess_base import ChessBoard, PIECES
 
 
 def test_pieces_const():
@@ -6,11 +6,11 @@ def test_pieces_const():
 
 
 def test_build_board_empty():
-    assert build_board(0, 0) == []
+    assert ChessBoard(0, 0, []).board == []
 
 
 def test_build_board():
     width, height = 4, 4
-    board = build_board(width, height)
+    board = ChessBoard(width, height, []).board
     assert len(board) == height
     assert all(len(row) == width for row in board)
