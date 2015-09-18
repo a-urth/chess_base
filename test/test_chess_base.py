@@ -44,7 +44,31 @@ class ChessBoardTestCase(unittest.TestCase):
         res = board.get_unique_result()
         self.assertEqual(len(res), 4)
 
-    def test_print_board(self):
+    def test_print_result(self):
+        result = (
+            'K   -   K\n'
+            '-   -   -\n'
+            '-   R   -\n'
+            '---------\n'
+            'K   -   -\n'
+            '-   -   R\n'
+            'K   -   -\n'
+            '---------\n'
+            '-   -   K\n'
+            'R   -   -\n'
+            '-   -   K\n'
+            '---------\n'
+            '-   R   -\n'
+            '-   -   -\n'
+            'K   -   K'
+        )
+
+        board = ChessBoard(3, 3, ['K', 'K', 'R'])
+        board.find_combinations()
+        print(board)
+        self.assertEqual(result, str(board))
+
+    def test_chess_board(self):
         solutions = [
             [
                 ['K', '-', 'K'],

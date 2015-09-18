@@ -5,6 +5,14 @@ PIECES_MAP = dict(zip(PIECES, range(5, 0, -1)))
 
 
 def check_board_for_k(y, x, width, height, board):
+    """Marks cells which can take King if they are not taken by other piece
+    If King on this cell can take another piece - return
+
+    y, x - int coordinates
+    width, height - board parameters, passed to keep their calculation in one place
+    board - 2-dimension listwith current board
+    """
+
     cells = set()
     # just move 1 step around current cell
     for i in range(-1, 2):
@@ -19,6 +27,14 @@ def check_board_for_k(y, x, width, height, board):
 
 
 def check_board_for_r(y, x, width, height, board):
+    """Marks cells which can take Rook if they are not taken by other piece
+    If Rook on this cell can take another piece - return
+
+    y, x - int coordinates
+    width, height - board parameters, passed to keep their calculation in one place
+    board - 2-dimension listwith current board
+    """
+
     cells = set()
     # move horizontaly
     for i in range(width):
@@ -40,6 +56,14 @@ def check_board_for_r(y, x, width, height, board):
 
 
 def check_board_for_b(y, x, width, height, board):
+    """Marks cells which can take Bishop if they are not taken by other piece
+    If Bishop on this cell can take another piece - return
+
+    y, x - int coordinates
+    width, height - board parameters, passed to keep their calculation in one place
+    board - 2-dimension listwith current board
+    """
+
     cells = set()
     for i in range(width):
         if i == x:
@@ -62,6 +86,14 @@ def check_board_for_b(y, x, width, height, board):
 
 
 def check_board_for_q(y, x, width, height, board):
+    """Marks cells which can take Queen if they are not taken by other piece
+    If Queen on this cell can take another piece - return
+
+    y, x - int coordinates
+    width, height - board parameters, passed to keep their calculation in one place
+    board - 2-dimension listwith current board
+    """
+
     # since queen is intersection of bishop and rook...
     cells_r = check_board_for_r(y, x, width, height, board)
     if cells_r is None:
@@ -73,6 +105,14 @@ def check_board_for_q(y, x, width, height, board):
 
 
 def check_board_for_n(y, x, width, height, board):
+    """Marks cells which can take Knight if they are not taken by other piece
+    If Knight on this cell can take another piece - return
+
+    y, x - int coordinates
+    width, height - board parameters, passed to keep their calculation in one place
+    board - 2-dimension listwith current board
+    """
+
     cells = set()
     # very naive solve for knights
     for i, j in ((-2, 1), (-1, 2), (1, 2), (2, 1)):
@@ -97,18 +137,31 @@ def check_board_for_n(y, x, width, height, board):
 
 
 def check_board(y, x, board, piece):
+    """Upper level function which takes function respective to piece and checks board
+    """
+
     func = globals()['check_board_for_%s' % piece.lower()]
     width, height = len(board[0]), len(board)
     return func(y, x, width, height, board)
 
 
 def mark_cells(cells, board):
+    """Marks cells gathered in check_board function and marks them as captured
+    """
+
     for cell in cells:
         y, x = cell
         board[y][x] = '-'
 
 
 class ChessBoard:
+    """Finds all unique configurations of a set of normal chess pieces
+    on a chess board with dimensions width×height where none of the pieces
+    is in a position to take any of the others
+
+    width, height - int dimensions
+    pieces - list with pieces
+    """
 
     def __init__(self, width, height, pieces):
         self.width, self.height, self.pieces = width, height, pieces
