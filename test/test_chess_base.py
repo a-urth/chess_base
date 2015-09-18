@@ -44,6 +44,34 @@ class ChessBoardTestCase(unittest.TestCase):
         res = board.get_unique_result()
         self.assertEqual(len(res), 4)
 
+    def test_print_board(self):
+        solutions = [
+            [
+                ['K', '-', 'K'],
+                ['-', '-', '-'],
+                ['-', 'R', '-'],
+            ],
+            [
+                ['K', '-', '-'],
+                ['-', '-', 'R'],
+                ['K', '-', '-'],
+            ],
+            [
+                ['-', '-', 'K'],
+                ['R', '-', '-'],
+                ['-', '-', 'K'],
+            ],
+            [
+                ['-', 'R', '-'],
+                ['-', '-', '-'],
+                ['K', '-', 'K'],
+            ],
+        ]
+        board = ChessBoard(3, 3, ['K', 'K', 'R'])
+        board.find_combinations()
+        res = board.get_unique_result()
+        self.assertEqual(res, solutions)
+
 
 class BoardCheckersTestCase(unittest.TestCase):
 
@@ -86,26 +114,39 @@ class BoardCheckersTestCase(unittest.TestCase):
         width, height = len(board[0]), len(board)
         self.assertIsNone(check_board_for_b(2, 2, width, height, board))
         self.assertEqual(check_board_for_b(2, 1, width, height, board), {(1, 2)})
+        self.assertEqual(check_board_for_b(0, 2, width, height, board), {(2, 0)})
 
     def test_check_board_for_q(self):
-        board = [
+        board_1 = [
             ('K', '-', 0),
             ('-', '-', 0),
             (0, 0, 0)
         ]
-        width, height = len(board[0]), len(board)
-        self.assertIsNone(check_board_for_q(2, 2, width, height, board))
-        self.assertIsNone(check_board_for_q(0, 2, width, height, board))
-        self.assertIsNone(check_board_for_q(2, 0, width, height, board))
-        self.assertEqual(check_board_for_q(2, 1, width, height, board), {(2, 0), (2, 2), (1, 2)})
+        board_2 = [
+            (0, 0, 0),
+            (0, '-', '-'),
+            (0, '-', 'K')
+        ]
+        width, height = len(board_1[0]), len(board_1)
+        self.assertIsNone(check_board_for_q(2, 2, width, height, board_1))
+        self.assertIsNone(check_board_for_q(0, 2, width, height, board_1))
+        self.assertIsNone(check_board_for_q(2, 0, width, height, board_1))
+        self.assertIsNone(check_board_for_q(0, 0, width, height, board_2))
+        self.assertEqual(check_board_for_q(2, 1, width, height, board_1), {(2, 0), (2, 2), (1, 2)})
 
     def test_check_board_for_n(self):
-        board = [
+        board_1 = [
             ('K', '-', 0),
             ('-', '-', 0),
             (0, 0, 0)
         ]
-        width, height = len(board[0]), len(board)
-        self.assertIsNone(check_board_for_n(2, 1, width, height, board))
-        self.assertIsNone(check_board_for_n(1, 2, width, height, board))
-        self.assertEqual(check_board_for_n(2, 0, width, height, board), {(1, 2)})
+        board_2 = [
+            (0, 0, 0),
+            (0, '-', '-'),
+            (0, '-', 'K')
+        ]
+        width, height = len(board_1[0]), len(board_1)
+        self.assertIsNone(check_board_for_n(2, 1, width, height, board_1))
+        self.assertIsNone(check_board_for_n(1, 2, width, height, board_1))
+        self.assertIsNone(check_board_for_n(0, 1, width, height, board_2))
+        self.assertEqual(check_board_for_n(2, 0, width, height, board_1), {(1, 2)})

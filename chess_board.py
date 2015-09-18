@@ -160,4 +160,4 @@ class ChessBoard:
             board = '\n'.join(delimeter.join(str(cell) for cell in row) for row in board)
             res.append(board)
         line = '-' * (len(delimeter) * (width - 1) + width)
-        return line.join(res)
+        return ("\n%s\n" % line).join(res)
