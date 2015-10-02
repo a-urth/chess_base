@@ -2,7 +2,7 @@ from datetime import datetime
 
 import click
 
-from chess_board import ChessBoard, PIECES, PIECES_MAP
+from chess_board import ChessBoard
 
 
 class ChessboardSizeType(click.ParamType):
@@ -26,11 +26,11 @@ class PiecesType(click.ParamType):
     def convert(self, value, param, ctx):
         try:
             pieces = value.split(',')
-            wrong_pieces = any(piece not in PIECES for piece in pieces)
+            wrong_pieces = any(piece not in ChessBoard.PIECES for piece in pieces)
             if not pieces or wrong_pieces:
                 raise ValueError()
 
-            return sorted(pieces, key=lambda x: PIECES_MAP[x], reverse=True)
+            return sorted(pieces, key=lambda x: ChessBoard.PIECES_MAP[x], reverse=True)
         except ValueError:
             self.fail('Pieces must be provided in form "K,Q,B,B"')
 
@@ -42,12 +42,11 @@ class PiecesType(click.ParamType):
 def build_chess(size, pieces, verbose):
     width, height = size
     assert len(pieces) <= (width * height) / 2
-    board = ChessBoard(width, height, pieces)
+    board = ChessBoard(width, height, pieces, verbose=verbose)
     t = datetime.now()
     board.find_combinations()
-    print(len(board.get_unique_result()), datetime.now() - t)
-    if verbose:
-        print(board)
+    print(board.get_combinations_number(), datetime.now() - t)
+
 
 if __name__ == '__main__':
     build_chess()

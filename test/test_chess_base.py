@@ -1,20 +1,12 @@
 import unittest
 
-from chess_board import ChessBoard, PIECES
-from chess_board import (
-    check_board_for_b,
-    check_board_for_r,
-    check_board_for_k,
-    check_board_for_q,
-    check_board_for_n,
-    check_board, mark_cells,
-)
+from chess_board import ChessBoard
 
 
 class HelperFunctionsTestCase(unittest.TestCase):
 
     def test_pieces_const(self):
-        self.assertEqual(len(PIECES), 5)
+        self.assertEqual(len(ChessBoard.PIECES), 5)
 
     def test_build_board_empty(self):
         self.assertEqual(ChessBoard(0, 0, []).new_board(), [])
@@ -25,152 +17,104 @@ class HelperFunctionsTestCase(unittest.TestCase):
         self.assertEqual(len(board), height)
         self.assertTrue(all(len(row) == width for row in board))
 
-    def test_mark_cells(self):
-        board = ChessBoard(2, 2, []).new_board()
-        cells = [(0, 0), (1, 1)]
-        res_board = [
-            ['-', 0],
-            [0, '-']
-        ]
-        mark_cells(cells, board)
-        self.assertEqual(board, res_board)
-
 
 class ChessBoardTestCase(unittest.TestCase):
 
     def test_unique_result(self):
         board = ChessBoard(3, 3, ['K', 'K', 'R'])
         board.find_combinations()
-        res = board.get_unique_result()
-        self.assertEqual(len(res), 4)
-
-    def test_print_result(self):
-        result = (
-            'K   -   K\n'
-            '-   -   -\n'
-            '-   R   -\n'
-            '---------\n'
-            'K   -   -\n'
-            '-   -   R\n'
-            'K   -   -\n'
-            '---------\n'
-            '-   -   K\n'
-            'R   -   -\n'
-            '-   -   K\n'
-            '---------\n'
-            '-   R   -\n'
-            '-   -   -\n'
-            'K   -   K'
-        )
-
-        board = ChessBoard(3, 3, ['K', 'K', 'R'])
-        board.find_combinations()
-        print(board)
-        self.assertEqual(result, str(board))
-
-    def test_chess_board(self):
-        solutions = [
-            [
-                ['K', '-', 'K'],
-                ['-', '-', '-'],
-                ['-', 'R', '-'],
-            ],
-            [
-                ['K', '-', '-'],
-                ['-', '-', 'R'],
-                ['K', '-', '-'],
-            ],
-            [
-                ['-', '-', 'K'],
-                ['R', '-', '-'],
-                ['-', '-', 'K'],
-            ],
-            [
-                ['-', 'R', '-'],
-                ['-', '-', '-'],
-                ['K', '-', 'K'],
-            ],
-        ]
-        board = ChessBoard(3, 3, ['K', 'K', 'R'])
-        board.find_combinations()
-        res = board.get_unique_result()
-        self.assertEqual(res, solutions)
+        self.assertEqual(board.get_combinations_number(), 4)
 
 
 class BoardCheckersTestCase(unittest.TestCase):
 
     def test_check_board_general(self):
-        width, height = 3, 3
-        board = ChessBoard(width, height, []).new_board()
-        br1, br2 = check_board(1, 1, board, 'R'), check_board_for_r(1, 1, width, height, board)
-        bk1, bk2 = check_board(1, 1, board, 'K'), check_board_for_k(1, 1, width, height, board)
+        cells = {
+            (0, 0): 'K',
+            (0, 1): None,
+            (1, 0): None,
+            (1, 1): None,
+        }
+        board = ChessBoard(3, 3, [])
+        br1 = board.check_board(1, 1, cells, 'R')
+        br2 = board.check_board_for_r(1, 1, cells)
+        bk1 = board.check_board(1, 1, cells, 'K')
+        bk2 = board.check_board_for_k(1, 1, cells)
         self.assertEqual(br1, br2)
         self.assertEqual(bk1, bk2)
         self.assertNotEqual(br2, bk2)
 
     def test_check_board_for_r(self):
-        board = [
-            ('K', '-', 0),
-            ('-', '-', 0),
-            (0, 0, 0)
-        ]
-        width, height = len(board[0]), len(board)
-        self.assertIsNone(check_board_for_r(0, 2, width, height, board))
-        self.assertIsNone(check_board_for_r(2, 0, width, height, board))
-        self.assertEqual(check_board_for_r(2, 1, width, height, board), {(2, 0), (2, 2)})
+        cells = {
+            (0, 0): 'K',
+            (0, 1): None,
+            (1, 0): None,
+            (1, 1): None,
+        }
+        board = ChessBoard(3, 3, [])
+        self.assertIsNone(board.check_board_for_r(0, 2, cells))
+        self.assertIsNone(board.check_board_for_r(2, 0, cells))
+        self.assertEqual(board.check_board_for_r(2, 1, cells), {(2, 0), (2, 2)})
 
     def test_check_board_for_k(self):
-        board = [
-            ('R', '-', '-'),
-            ('-', 0, 0),
-            ('-', 0, 0)
-        ]
-        width, height = len(board[0]), len(board)
-        self.assertIsNone(check_board_for_k(1, 1, width, height, board))
-        self.assertEqual(check_board_for_k(2, 2, width, height, board), {(1, 1), (2, 1), (1, 2)})
+        cells = {
+            (0, 0): 'R',
+            (0, 1): None,
+            (0, 2): None,
+            (1, 0): None,
+            (2, 0): None,
+        }
+        board = ChessBoard(3, 3, [])
+        self.assertIsNone(board.check_board_for_k(1, 1, cells))
+        self.assertEqual(board.check_board_for_k(2, 2, cells), {(1, 1), (2, 1), (1, 2)})
 
     def test_check_board_for_b(self):
-        board = [
-            ('K', '-', 0),
-            ('-', '-', 0),
-            (0, 0, 0)
-        ]
-        width, height = len(board[0]), len(board)
-        self.assertIsNone(check_board_for_b(2, 2, width, height, board))
-        self.assertEqual(check_board_for_b(2, 1, width, height, board), {(1, 2)})
-        self.assertEqual(check_board_for_b(0, 2, width, height, board), {(2, 0)})
+        cells = {
+            (0, 0): 'K',
+            (0, 1): None,
+            (1, 0): None,
+            (1, 1): None,
+        }
+        board = ChessBoard(3, 3, [])
+        self.assertIsNone(board.check_board_for_b(2, 2, cells))
+        self.assertEqual(board.check_board_for_b(2, 1, cells), {(1, 2)})
+        self.assertEqual(board.check_board_for_b(0, 2, cells), {(2, 0)})
 
     def test_check_board_for_q(self):
-        board_1 = [
-            ('K', '-', 0),
-            ('-', '-', 0),
-            (0, 0, 0)
-        ]
-        board_2 = [
-            (0, 0, 0),
-            (0, '-', '-'),
-            (0, '-', 'K')
-        ]
-        width, height = len(board_1[0]), len(board_1)
-        self.assertIsNone(check_board_for_q(2, 2, width, height, board_1))
-        self.assertIsNone(check_board_for_q(0, 2, width, height, board_1))
-        self.assertIsNone(check_board_for_q(2, 0, width, height, board_1))
-        self.assertIsNone(check_board_for_q(0, 0, width, height, board_2))
-        self.assertEqual(check_board_for_q(2, 1, width, height, board_1), {(2, 0), (2, 2), (1, 2)})
+        cells_1 = {
+            (0, 0): 'K',
+            (0, 1): None,
+            (1, 0): None,
+            (1, 1): None,
+        }
+        cells_2 = {
+            (2, 2): 'K',
+            (1, 1): None,
+            (1, 2): None,
+            (2, 1): None,
+        }
+        board = ChessBoard(3, 3, [])
+        self.assertIsNone(board.check_board_for_q(2, 2, cells_1))
+        self.assertIsNone(board.check_board_for_q(0, 2, cells_1))
+        self.assertIsNone(board.check_board_for_q(2, 0, cells_1))
+        self.assertIsNone(board.check_board_for_q(0, 0, cells_2))
+        self.assertEqual(board.check_board_for_q(2, 1, cells_1), {(2, 0), (2, 2), (1, 2)})
 
     def test_check_board_for_n(self):
-        board_1 = [
-            ('K', '-', 0),
-            ('-', '-', 0),
-            (0, 0, 0)
-        ]
-        board_2 = [
-            (0, 0, 0),
-            (0, '-', '-'),
-            (0, '-', 'K')
-        ]
-        width, height = len(board_1[0]), len(board_1)
-        self.assertIsNone(check_board_for_n(2, 1, width, height, board_1))
-        self.assertIsNone(check_board_for_n(1, 2, width, height, board_1))
-        self.assertIsNone(check_board_for_n(0, 1, width, height, board_2))
-        self.assertEqual(check_board_for_n(2, 0, width, height, board_1), {(1, 2)})
+        cells_1 = {
+            (0, 0): 'K',
+            (0, 1): None,
+            (1, 0): None,
+            (1, 1): None,
+        }
+        cells_2 = {
+            (2, 2): 'K',
+            (1, 1): None,
+            (1, 2): None,
+            (2, 1): None,
+        }
+        board = ChessBoard(3, 3, [])
+        self.assertIsNone(board.check_board_for_n(2, 1, cells_1))
+        self.assertIsNone(board.check_board_for_n(1, 2, cells_1))
+        self.assertIsNone(board.check_board_for_n(0, 1, cells_2))
+        self.assertEqual(board.check_board_for_n(2, 0, cells_1), {(1, 2)})
