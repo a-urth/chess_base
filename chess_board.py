@@ -13,6 +13,7 @@ class ChessBoard:
         self.width, self.height, self.pieces = width, height, pieces
         self.verbose = verbose
         self.__unique_comb_hashes = set()
+        self.combinations_number = 0
 
     def __is_cell_cannot_be_taken(self, cell, cells_map):
         return cell in cells_map and cells_map[cell] in ChessBoard.PIECES_MAP
@@ -164,18 +165,21 @@ class ChessBoard:
         }[piece](y, x, cells_map)
 
     def get_combinations_number(self):
-        return len(self.__unique_comb_hashes)
+        # return len(self.__unique_comb_hashes)
+        return self.combinations_number
 
     def new_board(self):
         row = lambda x: list(0 for _ in range(x))
         return list(row(self.width) for _ in range(self.height))
 
     def find_combinations(self):
-        self.place_pieces({}, self.pieces)
+        self.place_pieces(0, 0, {}, self.pieces)
 
-    def place_pieces(self, _cells_map, pieces):
-        for i in range(self.height):
-            for j in range(self.width):
+    def place_pieces(self, start_x, start_y, _cells_map, pieces):
+        for i in range(start_y, self.height):
+            if i != start_y:
+                start_x = 0
+            for j in range(start_x, self.width):
                 # if this place is already under attack or this place taken
                 if (i, j) in _cells_map:
                     continue
@@ -192,18 +196,24 @@ class ChessBoard:
                 # add cells taken by current piece
                 for coords in cells_to_mark:
                     cells_map[coords] = None
-                # if its last piece we need to store combination hash and continue
+
+                # if its last piece we need to count this combination and continue
                 # (and print if required)
                 if len(pieces) == 1:
-                    # yeah, maybe its worst hash that You've seen
-                    _h = hash(tuple(sorted(cells_map.items())))
-                    if _h not in self.__unique_comb_hashes:
-                        self.__unique_comb_hashes.add(_h)
-                        if self.verbose:
-                            print(self.prettyfie_board(cells_map))
+                    self.combinations_number += 1
+                    if self.verbose:
+                        print(self.prettyfie_board(cells_map))
                     return
+
                 # if not - go deeper
-                self.place_pieces(cells_map, pieces[1:])
+                # if next piece is same as current next starting cell must be next from current
+                if piece == pieces[1]:
+                    start_x = (j + 1) % self.width
+                    start_y = i + (j + 1) // self.width
+                else:
+                    start_x, start_y = 0, 0
+
+                self.place_pieces(start_x, start_y, cells_map, pieces[1:])
 
     def prettyfie_board(self, cells):
         board = self.new_board()
