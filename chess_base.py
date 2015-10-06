@@ -41,7 +41,7 @@ class PiecesType(click.ParamType):
 @click.argument('pieces', type=PiecesType())
 def build_chess(size, pieces, verbose):
     width, height = size
-    assert len(pieces) <= (width * height) / 2
+    # assert len(pieces) <= (width * height) / 2
     board = ChessBoard(width, height, pieces, verbose=verbose)
     t = datetime.now()
     board.find_combinations()

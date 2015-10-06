@@ -5,6 +5,7 @@ class ChessBoard:
 
     width, height - int dimensions
     pieces - list with pieces
+    verbose - bool flag for printing results
     """
     PIECES = ('Q', 'R', 'B', 'K', 'N')
     PIECES_MAP = dict(zip(PIECES, range(5, 0, -1)))
@@ -12,7 +13,6 @@ class ChessBoard:
     def __init__(self, width, height, pieces, verbose=False):
         self.width, self.height, self.pieces = width, height, pieces
         self.verbose = verbose
-        self.__unique_comb_hashes = set()
         self.combinations_number = 0
 
     def __is_cell_cannot_be_taken(self, cell, cells_map):
@@ -23,8 +23,7 @@ class ChessBoard:
         If King on this cell can take another piece - return
 
         y, x - int coordinates
-        width, height - board parameters, passed to keep their calculation in one place
-        board - 2-dimension listwith current board
+        cells_map - dict with already taken cells
         """
 
         new_hit_cells = set()
@@ -45,8 +44,7 @@ class ChessBoard:
         If Rook on this cell can take another piece - return
 
         y, x - int coordinates
-        width, height - board parameters, passed to keep their calculation in one place
-        board - 2-dimension listwith current board
+        cells_map - dict with already taken cells
         """
 
         new_hit_cells = set()
@@ -75,8 +73,7 @@ class ChessBoard:
         If Bishop on this cell can take another piece - return
 
         y, x - int coordinates
-        width, height - board parameters, passed to keep their calculation in one place
-        board - 2-dimension listwith current board
+        cells_map - dict with already taken cells
         """
 
         new_hit_cells = set()
@@ -106,8 +103,7 @@ class ChessBoard:
         If Queen on this cell can take another piece - return
 
         y, x - int coordinates
-        width, height - board parameters, passed to keep their calculation in one place
-        board - 2-dimension listwith current board
+        cells_map - dict with already taken cells
         """
 
         # since queen is intersection of bishop and rook...
@@ -124,8 +120,7 @@ class ChessBoard:
         If Knight on this cell can take another piece - return
 
         y, x - int coordinates
-        width, height - board parameters, passed to keep their calculation in one place
-        board - 2-dimension listwith current board
+        cells_map - dict with already taken cells
         """
 
         new_hit_cells = set()
@@ -165,7 +160,6 @@ class ChessBoard:
         }[piece](y, x, cells_map)
 
     def get_combinations_number(self):
-        # return len(self.__unique_comb_hashes)
         return self.combinations_number
 
     def new_board(self):
@@ -176,6 +170,7 @@ class ChessBoard:
         self.place_pieces(0, 0, {}, self.pieces)
 
     def place_pieces(self, start_x, start_y, _cells_map, pieces):
+        piece = pieces[0]
         for i in range(start_y, self.height):
             if i != start_y:
                 start_x = 0
@@ -184,18 +179,15 @@ class ChessBoard:
                 if (i, j) in _cells_map:
                     continue
 
-                piece = pieces[0]
                 # or current piece on this place will attack other pieces
                 cells_to_mark = self.check_board(i, j, _cells_map, piece)
                 # just continue
                 if cells_to_mark is None:
                     continue
+
                 # if ok - make copy of current taken cells
                 cells_map = dict(_cells_map)
                 cells_map[(i, j)] = piece
-                # add cells taken by current piece
-                for coords in cells_to_mark:
-                    cells_map[coords] = None
 
                 # if its last piece we need to count this combination and continue
                 # (and print if required)
@@ -203,15 +195,22 @@ class ChessBoard:
                     self.combinations_number += 1
                     if self.verbose:
                         print(self.prettyfie_board(cells_map))
+                    continue
+
+                # if no - add cells taken by current piece
+                for coords in cells_to_mark:
+                    cells_map[coords] = None
+
+                # check if all cells are taken now
+                if len(cells_map) == self.width * self.height:
                     return
 
                 # if not - go deeper
                 # if next piece is same as current next starting cell must be next from current
+                start_x, start_y = 0, 0
                 if piece == pieces[1]:
                     start_x = (j + 1) % self.width
                     start_y = i + (j + 1) // self.width
-                else:
-                    start_x, start_y = 0, 0
 
                 self.place_pieces(start_x, start_y, cells_map, pieces[1:])
 
