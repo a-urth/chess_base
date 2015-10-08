@@ -203,7 +203,7 @@ class ChessBoard:
 
                 # check if all cells are taken now
                 if len(cells_map) == self.width * self.height:
-                    return
+                    continue
 
                 # if not - go deeper
                 # if next piece is same as current next starting cell must be next from current
